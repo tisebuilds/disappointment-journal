@@ -1,0 +1,136 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ticket-paper: #ede4d6;
+  --color-ticket-surface: #faf4ea;
+  --color-ticket-border: #ddd0bc;
+  --color-ticket-track: #b8a080;
+  --color-ticket-t3: #7a6248;
+  --color-ticket-t2: #5e4830;
+  --color-ticket-t1: #16100a;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-space), ui-monospace, monospace;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-ticket-paper);
+  color: var(--color-ticket-t1);
+  font-family: var(--font-serif);
+}
+
+/* Shell: full dynamic viewport, column, no outer scroll */
+.app-shell {
+  width: 100%;
+  height: 100dvh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--color-ticket-paper);
+}
+
+.feed-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 16px 100px;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.overlay-enter {
+  animation: overlay-in 200ms ease-out forwards;
+}
+
+.ui-label {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.btn-primary,
+.btn-outline,
+.btn-ghost {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 18px 24px;
+  border-radius: 0;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    transform 0.12s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn-primary {
+  background-color: var(--color-ticket-t1);
+  color: var(--color-ticket-surface);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--color-ticket-t1);
+  border: 1px solid var(--color-ticket-t1);
+}
+
+.btn-outline:active {
+  transform: scale(0.98);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-ticket-t2);
+  text-decoration: underline;
+  padding: 12px 8px;
+}
+
+.btn-ghost:active {
+  color: var(--color-ticket-t1);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
