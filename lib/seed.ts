@@ -11,6 +11,7 @@ export function createDemoTickets(now: Date = new Date()): Ticket[] {
   const fresh: Ticket = {
     id: "DEMO0001",
     createdAt: isoDaysAgo(5),
+    subject: "Passed over for the role",
     disappointment:
       "I was passed over for the role I had been preparing for all quarter.",
     learning: null,
@@ -22,6 +23,7 @@ export function createDemoTickets(now: Date = new Date()): Ticket[] {
   const atStop: Ticket = {
     id: "DEMO0002",
     createdAt: isoDaysAgo(35),
+    subject: "Collaboration fell through",
     disappointment:
       "A collaboration I counted on fell through at the last minute.",
     learning: null,
@@ -33,6 +35,7 @@ export function createDemoTickets(now: Date = new Date()): Ticket[] {
   const atDestination: Ticket = {
     id: "DEMO0003",
     createdAt: isoDaysAgo(95),
+    subject: "Missed an important deadline",
     disappointment: "I missed an important deadline and felt I let my team down.",
     learning:
       "I learned to ask for help earlier and to break work into smaller milestones.",

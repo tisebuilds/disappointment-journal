@@ -5,10 +5,9 @@ import type { Ticket } from "@/types/ticket";
 function Dot({ filled }: { filled: boolean }) {
   return (
     <span
-      className="size-2 shrink-0 rounded-full border-2"
+      className="size-2 shrink-0 rounded-full"
       style={{
-        backgroundColor: filled ? "#16100a" : "transparent",
-        borderColor: filled ? "#16100a" : "#b8a080",
+        backgroundColor: filled ? "#111111" : "#d4d4d0",
       }}
       aria-hidden
     />
@@ -18,8 +17,8 @@ function Dot({ filled }: { filled: boolean }) {
 function Segment({ filled }: { filled: boolean }) {
   return (
     <span
-      className="mx-0.5 h-0.5 min-w-[12px] flex-1"
-      style={{ backgroundColor: filled ? "#16100a" : "#b8a080" }}
+      className="mx-0.5 h-px min-w-[12px] flex-1"
+      style={{ backgroundColor: filled ? "#111111" : "#e8e8e4" }}
       aria-hidden
     />
   );
@@ -30,7 +29,7 @@ export function JourneyTrack({ ticket }: { ticket: Ticket }) {
   const hasSilver = Boolean(ticket.silver);
 
   return (
-    <div className="mt-3">
+    <div>
       <div className="flex items-center">
         <Dot filled />
         <Segment filled={hasLearning} />
@@ -38,17 +37,10 @@ export function JourneyTrack({ ticket }: { ticket: Ticket }) {
         <Segment filled={hasSilver} />
         <Dot filled={hasSilver} />
       </div>
-      <div
-        className="mt-1.5 flex justify-between gap-1 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-ticket-track"
-        style={{ color: "#7a6248" }}
-      >
-        <span className="max-w-[28%] text-left leading-tight">Logged</span>
-        <span className="max-w-[36%] text-center leading-tight">
-          1st Checkpoint
-        </span>
-        <span className="max-w-[36%] text-right leading-tight">
-          Final Checkpoint
-        </span>
+      <div className="mt-1.5 flex justify-between gap-1 text-[10px] font-medium text-mail-muted">
+        <span className="max-w-[28%] text-left leading-tight">Sent</span>
+        <span className="max-w-[36%] text-center leading-tight">30-day</span>
+        <span className="max-w-[36%] text-right leading-tight">90-day</span>
       </div>
     </div>
   );

@@ -1,71 +1,75 @@
 "use client";
 
-import { JourneyTrack } from "@/components/JourneyTrack";
+import { emailSnippet, emailSubject, formatInboxDate } from "@/lib/email";
 import { daysSince, isCheckpointReady, stageFor, STAGE_META } from "@/lib/stages";
 import type { Ticket } from "@/types/ticket";
-
-function formatCardDate(iso: string): string {
-  const d = new Date(iso);
-  return d
-    .toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })
-    .toUpperCase();
-}
-
-function snippet(text: string, max = 140): string {
-  const t = text.trim().replace(/\s+/g, " ");
-  if (t.length <= max) return t;
-  return `${t.slice(0, max).trim()}…`;
-}
 
 export function TicketCard({
   ticket,
   onOpen,
+  unread = false,
 }: {
   ticket: Ticket;
   onOpen: (id: string) => void;
+  unread?: boolean;
 }) {
   const stage = stageFor(ticket);
   const meta = STAGE_META[stage];
   const d = daysSince(ticket.createdAt);
   const ready = isCheckpointReady(ticket);
+  const subject = emailSubject(ticket);
+  const snippet = emailSnippet(ticket.disappointment);
+  const showUnread = unread || ready;
 
   return (
     <button
       type="button"
       onClick={() => onOpen(ticket.id)}
-      className="relative w-full border-0 p-5 text-left transition-[transform,background-color] active:scale-[0.98] active:bg-[#f3ead8]"
-      style={{
-        backgroundColor: ready ? "#ffffff" : "#faf4ea",
-        marginBottom: 3,
-        boxShadow: ready ? "inset 2px 0 0 0 #16100a" : "none",
-      }}
+      className="relative flex w-full gap-3 border-0 border-b border-mail-border bg-mail-paper px-5 py-4 text-left transition-colors last:border-b-0 active:bg-mail-accent"
     >
-      <div className="flex items-start justify-between gap-3">
-        <span className="font-mono text-[9px] font-bold tracking-[0.18em] text-ticket-t3">
-          {formatCardDate(ticket.createdAt)}
-        </span>
+      {showUnread ? (
         <span
-          className="shrink-0 font-mono text-[9px] font-bold tracking-[0.15em]"
-          style={{
-            color: ready ? "#faf4ea" : "#7a6248",
-            backgroundColor: ready ? "#16100a" : "transparent",
-            padding: ready ? "4px 8px" : "0",
-          }}
-        >
-          {meta.short}
-        </span>
+          className="mt-2 size-2 shrink-0 rounded-full bg-mail-unread"
+          aria-label="Needs reply"
+        />
+      ) : (
+        <span className="mt-2 size-2 shrink-0" aria-hidden />
+      )}
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline justify-between gap-3">
+          <p
+            className={`truncate text-[15px] leading-snug ${
+              showUnread ? "font-semibold text-mail-text" : "font-medium text-mail-text"
+            }`}
+          >
+            {subject}
+          </p>
+          <span className="shrink-0 text-xs text-mail-muted">
+            {formatInboxDate(ticket.createdAt)}
+          </span>
+        </div>
+
+        <p className="mt-0.5 truncate text-sm text-mail-secondary">
+          <span className="text-mail-muted">me · </span>
+          {snippet}
+        </p>
+
+        <div className="mt-2 flex items-center gap-2">
+          <span
+            className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+            style={{
+              color: ready ? "#ffffff" : meta.accent,
+              backgroundColor: ready ? "#111111" : "#f0ede8",
+            }}
+          >
+            {meta.short}
+          </span>
+          <span className="text-[11px] text-mail-muted">
+            {d} {d === 1 ? "day" : "days"} ago
+          </span>
+        </div>
       </div>
-      <p className="mt-3 font-serif text-[22px] font-bold italic leading-snug text-ticket-t1">
-        &ldquo;{snippet(ticket.disappointment)}&rdquo;
-      </p>
-      <JourneyTrack ticket={ticket} />
-      <p className="mt-2 font-mono text-[9px] font-bold tracking-[0.18em] text-ticket-t3">
-        {d} {d === 1 ? "DAY" : "DAYS"} IN
-      </p>
     </button>
   );
 }

@@ -1,11 +1,11 @@
 {
-  "name": "Disappointment Capsule",
-  "short_name": "Capsule",
-  "description": "Seal a disappointment. Reflect at 30 days. Find the silver lining at 90.",
+  "name": "Notes to Self",
+  "short_name": "Notes",
+  "description": "Send yourself an email when something disappoints you. Reply at 30 and 90 days.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ede4d6",
-  "theme_color": "#16100a",
+  "background_color": "#f4f4f0",
+  "theme_color": "#111111",
   "icons": [
     {
       "src": "/icons/icon-192.png",

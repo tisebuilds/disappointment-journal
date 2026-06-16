@@ -1,10 +1,16 @@
 "use client";
 
 import { BottomNav, type NavTab } from "@/components/BottomNav";
+import { DemoBanner } from "@/components/DemoBanner";
 import { DetailOverlay } from "@/components/DetailOverlay";
 import { Feed } from "@/components/Feed";
 import { NewEntryOverlay } from "@/components/NewEntryOverlay";
 import { SettingsTab } from "@/components/SettingsTab";
+import {
+  demoNow,
+  loadDemoDayOffset,
+  saveDemoDayOffset,
+} from "@/lib/demo";
 import { loadTickets, saveTickets } from "@/lib/tickets";
 import type { Ticket } from "@/types/ticket";
 import { useEffect, useState } from "react";
@@ -18,10 +24,12 @@ export default function Home() {
   const [tab, setTab] = useState<NavTab>("entries");
   const [screen, setScreen] = useState<Screen>("feed");
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [demoDayOffset, setDemoDayOffset] = useState(0);
 
   useEffect(() => {
     queueMicrotask(() => {
       setTickets(loadTickets());
+      setDemoDayOffset(loadDemoDayOffset());
       setHydrated(true);
     });
   }, []);
@@ -59,7 +67,7 @@ export default function Home() {
   };
 
   const saveLearning = (id: string, learning: string) => {
-    const now = new Date().toISOString();
+    const now = demoNow().toISOString();
     setTickets((prev) =>
       prev.map((t) =>
         t.id === id
@@ -70,7 +78,7 @@ export default function Home() {
   };
 
   const saveSilver = (id: string, silver: string) => {
-    const now = new Date().toISOString();
+    const now = demoNow().toISOString();
     setTickets((prev) =>
       prev.map((t) =>
         t.id === id ? { ...t, silver, silverAt: now } : t,
@@ -78,8 +86,19 @@ export default function Home() {
     );
   };
 
+  const resetDemoClock = () => {
+    saveDemoDayOffset(0);
+    setDemoDayOffset(0);
+  };
+
+  const updateDemoOffset = (days: number) => {
+    saveDemoDayOffset(days);
+    setDemoDayOffset(days);
+  };
+
   return (
     <div className="app-shell">
+      <DemoBanner demoDayOffset={demoDayOffset} onReset={resetDemoClock} />
       {tab === "entries" ? (
         <Feed
           tickets={tickets}
@@ -87,7 +106,12 @@ export default function Home() {
           onCreateEntry={openNew}
         />
       ) : (
-        <SettingsTab tickets={tickets} onTicketsChange={setTickets} />
+        <SettingsTab
+          tickets={tickets}
+          onTicketsChange={setTickets}
+          demoDayOffset={demoDayOffset}
+          onDemoDayOffsetChange={updateDemoOffset}
+        />
       )}
 
       <BottomNav

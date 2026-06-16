@@ -1,7 +1,8 @@
+import { daysBetween } from "@/lib/demo";
 import type { Ticket, TicketStage } from "@/types/ticket";
 
 export function daysSince(iso: string): number {
-  return Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  return daysBetween(iso);
 }
 
 export function stageFor(ticket: Ticket): TicketStage {
@@ -17,28 +18,28 @@ export const STAGE_META: Record<
   { label: string; short: string; dot: string; accent: string }
 > = {
   departed: {
-    label: "En Route",
-    short: "EN ROUTE",
-    dot: "#c4a882",
-    accent: "#7a5c3a",
+    label: "Waiting",
+    short: "WAITING",
+    dot: "#c4c4c0",
+    accent: "#5c5c58",
   },
   stop: {
-    label: "1st Checkpoint",
-    short: "1ST CHECKPOINT",
-    dot: "#d4845a",
-    accent: "#b0622a",
+    label: "Reply due",
+    short: "REPLY DUE",
+    dot: "#2563eb",
+    accent: "#1d4ed8",
   },
   destination: {
-    label: "Final Checkpoint",
-    short: "FINAL CHECKPOINT",
-    dot: "#7a9e7e",
-    accent: "#4a7a54",
+    label: "Final reply",
+    short: "FINAL REPLY",
+    dot: "#2563eb",
+    accent: "#1d4ed8",
   },
   arrived: {
-    label: "Arrived",
-    short: "ARRIVED",
-    dot: "#9e9e9e",
-    accent: "#5a5a5a",
+    label: "Complete",
+    short: "COMPLETE",
+    dot: "#8a8a86",
+    accent: "#5c5c58",
   },
 };
 

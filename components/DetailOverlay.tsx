@@ -1,6 +1,7 @@
 "use client";
 
 import { JourneyTrack } from "@/components/JourneyTrack";
+import { emailSubject, formatMessageDate } from "@/lib/email";
 import {
   daysSince,
   needsLearning,
@@ -11,12 +12,33 @@ import {
 import type { Ticket } from "@/types/ticket";
 import { useState } from "react";
 
-function formatLongDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+function MessageBlock({
+  label,
+  date,
+  children,
+}: {
+  label: string;
+  date?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <article className="border-b border-mail-border px-5 py-6 last:border-b-0">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-mail-muted">
+            {label}
+          </p>
+          <p className="mt-1 text-sm font-semibold text-mail-text">me</p>
+        </div>
+        {date ? (
+          <time className="shrink-0 text-xs text-mail-muted">{date}</time>
+        ) : null}
+      </div>
+      <div className="mt-4 text-[15px] leading-relaxed text-mail-text">
+        {children}
+      </div>
+    </article>
+  );
 }
 
 function DetailBody({
@@ -50,109 +72,134 @@ function DetailBody({
   const finalLockedWaiting90 =
     ticket.learning && !ticket.silver && d < 90;
 
+  const subject = emailSubject(ticket);
+
   return (
     <>
-      <header className="flex shrink-0 flex-wrap items-center gap-3 border-b border-ticket-border px-4 pb-4 pt-[calc(12px+env(safe-area-inset-top,0px))]">
-        <button
-          type="button"
-          onClick={onClose}
-          className="btn-ghost px-0 py-2 font-mono text-[10px] font-bold tracking-[0.2em]"
-        >
-          ← Entries
-        </button>
-        <span className="font-mono text-[9px] font-bold tracking-[0.15em] text-ticket-t3">
-          {meta.short}
-        </span>
-        <span className="ml-auto font-mono text-[9px] font-bold tracking-[0.15em] text-ticket-t3">
-          {d} {d === 1 ? "DAY" : "DAYS"} IN
-        </span>
-      </header>
-
-      <div
-        className="min-h-0 flex-1 overflow-y-auto px-4 py-6"
-        style={{ WebkitOverflowScrolling: "touch" }}
-      >
-        <p className="ui-label text-ticket-t3">Itinerary</p>
-        <div className="mt-3 rounded-none border border-ticket-border bg-ticket-paper p-4">
-          <div className="flex justify-between gap-2 font-mono text-[8px] font-bold uppercase tracking-[0.12em] text-ticket-t3">
-            <span>Logged</span>
-            <span>1st Checkpoint</span>
-            <span>Final Checkpoint</span>
+      <header className="shrink-0 border-b border-mail-border bg-mail-paper px-5 pb-4 pt-[calc(12px+env(safe-area-inset-top,0px))]">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex size-9 shrink-0 items-center justify-center rounded-full border border-mail-border bg-mail-surface text-lg text-mail-text"
+            aria-label="Back to inbox"
+          >
+            ←
+          </button>
+          <div className="min-w-0 flex-1">
+            <h2 className="truncate text-base font-semibold text-mail-text">
+              {subject}
+            </h2>
+            <p className="mt-0.5 text-xs text-mail-muted">
+              {meta.short} · {d} {d === 1 ? "day" : "days"} ago
+            </p>
           </div>
+        </div>
+
+        <div className="mt-4 rounded-2xl bg-mail-accent px-4 py-3">
+          <p className="ui-label">Thread</p>
           <div className="mt-2">
             <JourneyTrack ticket={ticket} />
           </div>
         </div>
+      </header>
 
-        <section className="mt-8">
-          <p className="ui-label text-ticket-t3">
-            Logged · {formatLongDate(ticket.createdAt)}
-          </p>
-          <p className="mt-3 font-serif text-xl font-bold italic leading-relaxed text-ticket-t1">
-            {ticket.disappointment}
-          </p>
-        </section>
+      <div
+        className="min-h-0 flex-1 overflow-y-auto bg-mail-paper"
+        style={{ WebkitOverflowScrolling: "touch" }}
+      >
+        <MessageBlock
+          label="Original message"
+          date={formatMessageDate(ticket.createdAt)}
+        >
+          {ticket.disappointment}
+        </MessageBlock>
 
-        <section className="mt-10">
-          <p className="ui-label text-ticket-t3">1st checkpoint · I learned…</p>
-          {ticket.learning ? (
-            <p className="mt-3 font-serif text-lg font-bold italic leading-relaxed text-ticket-t1">
-              {ticket.learning}
+        {ticket.learning ? (
+          <MessageBlock
+            label="Re: 30-day reply"
+            date={
+              ticket.learningAt
+                ? formatMessageDate(ticket.learningAt)
+                : undefined
+            }
+          >
+            {ticket.learning}
+          </MessageBlock>
+        ) : needsLearning(ticket) ? (
+          <article className="border-b border-mail-border bg-mail-surface px-5 py-6">
+            <p className="text-xs font-medium uppercase tracking-wide text-mail-muted">
+              Re: 30-day reply
             </p>
-          ) : needsLearning(ticket) ? (
-            <>
-              <p className="mt-3 font-mono text-[10px] font-normal uppercase leading-relaxed tracking-[0.18em] text-ticket-t2">
-                30 days have passed. What did this teach you?
-              </p>
-              <textarea
-                value={learningDraft}
-                onChange={(e) => setLearningDraft(e.target.value)}
-                className="mt-4 min-h-[140px] w-full resize-y border border-ticket-border bg-transparent p-3 font-serif text-[20px] italic leading-relaxed text-ticket-t1 outline-none"
-                style={{ fontSize: "22px" }}
-              />
-            </>
-          ) : firstLockedEarly ? (
-            <p className="mt-3 font-mono text-[10px] font-normal uppercase tracking-[0.18em] text-ticket-t3">
-              Unlocks in {daysTo30} {daysTo30 === 1 ? "day" : "days"}.
+            <p className="mt-3 text-sm leading-relaxed text-mail-secondary">
+              30 days have passed. What did this teach you?
             </p>
-          ) : null}
-        </section>
+            <textarea
+              value={learningDraft}
+              onChange={(e) => setLearningDraft(e.target.value)}
+              className="mt-4 min-h-[120px] w-full resize-y rounded-2xl border border-mail-border bg-mail-paper p-4 text-[15px] leading-relaxed text-mail-text outline-none focus:border-mail-border-strong"
+              placeholder="Write your reply…"
+            />
+          </article>
+        ) : firstLockedEarly ? (
+          <article className="border-b border-mail-border px-5 py-6">
+            <p className="text-xs font-medium uppercase tracking-wide text-mail-muted">
+              Re: 30-day reply
+            </p>
+            <p className="mt-3 text-sm text-mail-muted">
+              Scheduled in {daysTo30} {daysTo30 === 1 ? "day" : "days"}.
+            </p>
+          </article>
+        ) : null}
 
-        <section className="mt-10">
-          <p className="ui-label text-ticket-t3">
-            Final checkpoint · A good thing that came from this…
-          </p>
-          {ticket.silver ? (
-            <p className="mt-3 font-serif text-lg font-bold italic leading-relaxed text-ticket-t1">
-              {ticket.silver}
+        {ticket.silver ? (
+          <MessageBlock
+            label="Re: 90-day reply"
+            date={
+              ticket.silverAt ? formatMessageDate(ticket.silverAt) : undefined
+            }
+          >
+            {ticket.silver}
+          </MessageBlock>
+        ) : finalLockedNoLearning ? (
+          <article className="border-b border-mail-border px-5 py-6">
+            <p className="text-xs font-medium uppercase tracking-wide text-mail-muted">
+              Re: 90-day reply
             </p>
-          ) : finalLockedNoLearning ? (
-            <p className="mt-3 font-mono text-[10px] font-normal uppercase tracking-[0.18em] text-ticket-t3">
-              Final reflection · Complete 1st checkpoint first
+            <p className="mt-3 text-sm text-mail-muted">
+              Reply to your 30-day note first.
             </p>
-          ) : finalLockedWaiting90 ? (
-            <p className="mt-3 font-mono text-[10px] font-normal uppercase tracking-[0.18em] text-ticket-t3">
-              Unlocks in {daysTo90} {daysTo90 === 1 ? "day" : "days"}.
+          </article>
+        ) : finalLockedWaiting90 ? (
+          <article className="border-b border-mail-border px-5 py-6">
+            <p className="text-xs font-medium uppercase tracking-wide text-mail-muted">
+              Re: 90-day reply
             </p>
-          ) : needsSilver(ticket) ? (
-            <>
-              <p className="mt-3 font-mono text-[10px] font-normal uppercase leading-relaxed tracking-[0.18em] text-ticket-t2">
-                A good thing that happened because of this…
-              </p>
-              <textarea
-                value={silverDraft}
-                onChange={(e) => setSilverDraft(e.target.value)}
-                className="mt-4 min-h-[140px] w-full resize-y border border-ticket-border bg-transparent p-3 font-serif text-[20px] italic leading-relaxed text-ticket-t1 outline-none"
-                style={{ fontSize: "22px" }}
-              />
-            </>
-          ) : null}
-        </section>
+            <p className="mt-3 text-sm text-mail-muted">
+              Scheduled in {daysTo90} {daysTo90 === 1 ? "day" : "days"}.
+            </p>
+          </article>
+        ) : needsSilver(ticket) ? (
+          <article className="border-b border-mail-border bg-mail-surface px-5 py-6">
+            <p className="text-xs font-medium uppercase tracking-wide text-mail-muted">
+              Re: 90-day reply
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-mail-secondary">
+              A good thing that happened because of this…
+            </p>
+            <textarea
+              value={silverDraft}
+              onChange={(e) => setSilverDraft(e.target.value)}
+              className="mt-4 min-h-[120px] w-full resize-y rounded-2xl border border-mail-border bg-mail-paper p-4 text-[15px] leading-relaxed text-mail-text outline-none focus:border-mail-border-strong"
+              placeholder="Write your reply…"
+            />
+          </article>
+        ) : null}
       </div>
 
       {showStickyFooter ? (
         <footer
-          className="shrink-0 border-t border-ticket-border bg-ticket-surface p-4"
+          className="shrink-0 border-t border-mail-border bg-mail-surface px-5 py-4"
           style={{
             paddingBottom: `calc(16px + env(safe-area-inset-bottom, 0px))`,
           }}
@@ -160,25 +207,25 @@ function DetailBody({
           {needsLearning(ticket) ? (
             <button
               type="button"
-              className="btn-primary w-full"
+              className="btn-send w-full sm:w-auto"
               disabled={!canSaveLearning}
               onClick={() => {
                 onSaveLearning(ticket.id, learningDraft.trim());
               }}
             >
-              Save my entry →
+              Send reply
             </button>
           ) : null}
           {needsSilver(ticket) ? (
             <button
               type="button"
-              className="btn-primary w-full"
+              className="btn-send w-full sm:w-auto"
               disabled={!canSaveSilver}
               onClick={() => {
                 onSaveSilver(ticket.id, silverDraft.trim());
               }}
             >
-              Complete my reflection ✦
+              Send reply
             </button>
           ) : null}
         </footer>
@@ -204,13 +251,13 @@ export function DetailOverlay({
 
   return (
     <div
-      className="fixed inset-0 z-40 flex flex-col bg-ticket-surface overlay-enter"
+      className="fixed inset-0 z-40 flex flex-col bg-mail-bg overlay-enter"
       role="dialog"
       aria-modal="true"
       aria-labelledby="detail-title"
     >
       <span id="detail-title" className="sr-only">
-        Entry detail
+        Message thread
       </span>
       <DetailBody
         key={ticket.id}

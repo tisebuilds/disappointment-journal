@@ -1,15 +1,18 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-ticket-paper: #ede4d6;
-  --color-ticket-surface: #faf4ea;
-  --color-ticket-border: #ddd0bc;
-  --color-ticket-track: #b8a080;
-  --color-ticket-t3: #7a6248;
-  --color-ticket-t2: #5e4830;
-  --color-ticket-t1: #16100a;
-  --font-serif: var(--font-playfair), ui-serif, Georgia, "Times New Roman", serif;
-  --font-mono: var(--font-space), ui-monospace, monospace;
+  --color-mail-bg: #f4f4f0;
+  --color-mail-surface: #fafaf7;
+  --color-mail-paper: #ffffff;
+  --color-mail-header: #111111;
+  --color-mail-border: #e8e8e4;
+  --color-mail-border-strong: #d4d4d0;
+  --color-mail-muted: #8a8a86;
+  --color-mail-secondary: #5c5c58;
+  --color-mail-text: #111111;
+  --color-mail-unread: #2563eb;
+  --color-mail-accent: #f0ede8;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 html,
@@ -21,12 +24,11 @@ body {
 }
 
 body {
-  background-color: var(--color-ticket-paper);
-  color: var(--color-ticket-t1);
-  font-family: var(--font-serif);
+  background-color: var(--color-mail-bg);
+  color: var(--color-mail-text);
+  font-family: var(--font-sans);
 }
 
-/* Shell: full dynamic viewport, column, no outer scroll */
 .app-shell {
   width: 100%;
   height: 100dvh;
@@ -34,21 +36,20 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background-color: var(--color-ticket-paper);
+  background-color: var(--color-mail-bg);
 }
 
 .feed-scroll {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 16px 16px 100px;
   padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
 }
 
 @keyframes overlay-in {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -61,23 +62,51 @@ body {
 }
 
 .ui-label {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 9px;
-  letter-spacing: 0.2em;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  color: var(--color-mail-muted);
+}
+
+.btn-send {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 28px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--color-mail-text);
+  background-color: var(--color-mail-paper);
+  color: var(--color-mail-text);
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background-color 0.15s ease;
+}
+
+.btn-send:active {
+  transform: scale(0.97);
+  background-color: var(--color-mail-accent);
+}
+
+.btn-send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .btn-primary,
 .btn-outline,
 .btn-ghost {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 18px 24px;
-  border-radius: 0;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  padding: 14px 20px;
+  border-radius: 9999px;
   border: none;
   cursor: pointer;
   text-align: center;
@@ -88,8 +117,8 @@ body {
 }
 
 .btn-primary {
-  background-color: var(--color-ticket-t1);
-  color: var(--color-ticket-surface);
+  background-color: var(--color-mail-header);
+  color: #ffffff;
 }
 
 .btn-primary:active {
@@ -104,23 +133,55 @@ body {
 
 .btn-outline {
   background-color: transparent;
-  color: var(--color-ticket-t1);
-  border: 1px solid var(--color-ticket-t1);
+  color: var(--color-mail-text);
+  border: 1.5px solid var(--color-mail-border-strong);
 }
 
 .btn-outline:active {
   transform: scale(0.98);
+  background-color: var(--color-mail-accent);
 }
 
 .btn-ghost {
   background: transparent;
-  color: var(--color-ticket-t2);
+  color: var(--color-mail-secondary);
   text-decoration: underline;
+  text-underline-offset: 3px;
   padding: 12px 8px;
+  border-radius: 0;
 }
 
 .btn-ghost:active {
-  color: var(--color-ticket-t1);
+  color: var(--color-mail-text);
+}
+
+.compose-field {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  border-bottom: 1px solid var(--color-mail-border);
+  padding: 14px 20px;
+}
+
+.compose-field-label {
+  flex-shrink: 0;
+  width: 56px;
+  font-size: 15px;
+  color: var(--color-mail-muted);
+}
+
+.compose-field-input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+  color: var(--color-mail-text);
+  outline: none;
+}
+
+.compose-field-input::placeholder {
+  color: var(--color-mail-muted);
 }
 
 .sr-only {

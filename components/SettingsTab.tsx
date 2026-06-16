@@ -1,5 +1,6 @@
 "use client";
 
+import { DemoPanel } from "@/components/DemoPanel";
 import { clearTickets, exportTickets, importTickets } from "@/lib/tickets";
 import type { Ticket } from "@/types/ticket";
 import { useState } from "react";
@@ -7,9 +8,13 @@ import { useState } from "react";
 export function SettingsTab({
   tickets,
   onTicketsChange,
+  demoDayOffset,
+  onDemoDayOffsetChange,
 }: {
   tickets: Ticket[];
   onTicketsChange: (next: Ticket[]) => void;
+  demoDayOffset: number;
+  onDemoDayOffsetChange: (days: number) => void;
 }) {
   const [importError, setImportError] = useState<string | null>(null);
   const [resetConfirm, setResetConfirm] = useState(false);
@@ -35,29 +40,36 @@ export function SettingsTab({
 
   return (
     <div
-      className="feed-scroll flex flex-col gap-10"
-      style={{ paddingTop: "calc(16px + env(safe-area-inset-top, 0px))" }}
+      className="feed-scroll flex flex-col gap-10 px-5"
+      style={{ paddingTop: "calc(20px + env(safe-area-inset-top, 0px))" }}
     >
       <section>
-        <p className="ui-label text-ticket-t3">About</p>
-        <h2 className="mt-3 font-serif text-3xl font-black text-ticket-t1">
-          Disappointment Capsule
+        <p className="ui-label">About</p>
+        <h2 className="mt-3 text-2xl font-bold tracking-tight text-mail-text">
+          Notes to Self
         </h2>
-        <p className="mt-4 font-mono text-[10px] font-normal uppercase leading-relaxed tracking-[0.2em] text-ticket-t2">
-          Seal a disappointment. Reflect at 30 days. Find the silver lining at
-          90.
+        <p className="mt-3 text-sm leading-relaxed text-mail-secondary">
+          Send yourself a message when something disappoints you. Reply in 30
+          days with what you learned, then again at 90 with the silver lining.
         </p>
       </section>
 
+      <DemoPanel
+        tickets={tickets}
+        demoDayOffset={demoDayOffset}
+        onDemoDayOffsetChange={onDemoDayOffsetChange}
+        onTicketsChange={onTicketsChange}
+      />
+
       <section>
-        <p className="ui-label text-ticket-t3">Data</p>
+        <p className="ui-label">Data</p>
         <div className="mt-4 flex flex-col gap-3">
           <button
             type="button"
             className="btn-outline w-full"
             onClick={() => exportTickets(tickets)}
           >
-            Save backup
+            Export inbox
           </button>
           <label className="btn-outline block w-full cursor-pointer text-center">
             <input
@@ -66,10 +78,10 @@ export function SettingsTab({
               className="sr-only"
               onChange={onPickFile}
             />
-            Load backup
+            Import inbox
           </label>
           {importError ? (
-            <p className="font-mono text-[10px] text-red-800">{importError}</p>
+            <p className="text-sm text-red-700">{importError}</p>
           ) : null}
           {!resetConfirm ? (
             <button
@@ -77,12 +89,12 @@ export function SettingsTab({
               className="btn-ghost w-full"
               onClick={() => setResetConfirm(true)}
             >
-              Reset all
+              Delete all messages
             </button>
           ) : (
-            <div className="border border-ticket-border bg-ticket-paper p-4">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-ticket-t2">
-                This will delete all entries. Are you sure?
+            <div className="rounded-2xl border border-mail-border bg-mail-paper p-4">
+              <p className="text-sm font-medium text-mail-text">
+                This will delete all messages. Are you sure?
               </p>
               <div className="mt-4 flex flex-col gap-2 sm:flex-row">
                 <button
@@ -104,6 +116,11 @@ export function SettingsTab({
           )}
         </div>
       </section>
+
+      <p className="text-xs text-mail-muted">
+        {tickets.length} {tickets.length === 1 ? "message" : "messages"} stored
+        locally on this device.
+      </p>
     </div>
   );
 }
